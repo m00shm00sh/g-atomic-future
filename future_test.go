@@ -59,6 +59,23 @@ func TestCancelGet(t *testing.T) {
 	}
 }
 
+func TestSetGetGet(t *testing.T) {
+	f := New[int]()
+	e := errors.New("")
+	if r := timedTest[bool](t, 100 * time.Millisecond, func () bool { return f.Complete(1, e) }); r == nil || *r != true {
+		t.Error("completion not triggered")
+		return
+	}
+	if r, _ := timedTestE[int](t, 100 * time.Millisecond, func () (int, error) { return f.Get() }); r == nil || *r != 1 {
+		t.Error("completion not triggered")
+		return
+	}
+	if r, _ := timedTestE[int](t, 100 * time.Millisecond, func () (int, error) { return f.Get() }); r == nil || *r != 1 {
+		t.Error("completion not triggered")
+		return
+	}
+}
+
 func timedTest[R any](t *testing.T, timeout time.Duration, callable func () R) *R {
 	ctx, cancel := context.WithTimeout(context.Background(), 100 * time.Millisecond)
 	waitCh := make(chan R)
